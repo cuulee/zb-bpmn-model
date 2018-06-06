@@ -121,7 +121,6 @@ public class BpmnValidationTest
         // expect
         expectedException.expect(ValidationException.class);
         expectedException.expectMessage("Source mapping: JSON path '$.*' contains prohibited expression");
-//        expectedException.expectMessage("Target mapping: JSON path '$.a[0,1]' contains prohibited expression");
 
         // when
         Bpmn.createExecutableWorkflow("process")
@@ -149,6 +148,43 @@ public class BpmnValidationTest
                     .input("foo", "$")
                     .output("bar", "$")
                 .done()
+            .done();
+    }
+
+    @Test
+    public void testInvalidInputRootAndSpecificMapping()
+    {
+        // expect
+        expectedException.expect(ValidationException.class);
+        expectedException.expectMessage("Target mapping: root mapping is not allowed because it would override other mapping.");
+
+        // when
+        Bpmn.createExecutableWorkflow("process")
+            .startEvent()
+            .serviceTask()
+                .taskType("test")
+                .input("$", "$")
+                .input("$.bar", "$.bar")
+            .done()
+            .done();
+    }
+
+    @Test
+    public void testInvalidOutputRootAndSpecificMapping()
+    {
+        // expect
+        expectedException.expect(ValidationException.class);
+        expectedException.expectMessage("Target mapping: root mapping is not allowed because it would override other mapping.");
+
+        // when
+        Bpmn.createExecutableWorkflow("process")
+            .startEvent()
+            .serviceTask()
+            .taskType("test")
+                .input("$", "$")
+                .output("$", "$")
+                .output("$.bar", "$.bar")
+            .done()
             .done();
     }
 
